@@ -1,13 +1,12 @@
-// webpack.config.js
-
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './src/script.ts',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/', // Ensure the public path is set for the dev server
+    clean: true,
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -21,12 +20,17 @@ module.exports = {
       },
     ],
   },
-  mode: 'development',
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: './index.html',
+    }),
+  ],
   devServer: {
     static: {
-      directory: path.join(__dirname), // Serve from the root directory
+      directory: path.join(__dirname, 'dist'),
     },
     compress: true,
-    port: 9000, // You can change the port if needed
+    port: 9000,
   },
-};
+  mode: 'development',
+}; 
