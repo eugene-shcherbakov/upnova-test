@@ -71,12 +71,19 @@
             opacity: 0;
             transform: translateY(30px);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+						transition: 0.8s;
         }
 
         .product:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
+
+				.product.clone {
+					animation: none;
+					transform: translateY(0);
+					box-shadow: none;
+				}
 
         /* Product animations with staggered delay */
         .product:nth-child(1) {
@@ -132,7 +139,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
         }
 
@@ -208,6 +214,17 @@
             }
         }
 
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Modal styles */
         .modal {
             display: none;
@@ -253,11 +270,18 @@
         }
 
         #productDetailView {
-            display: none;
             padding: 40px;
-            max-width: 1000px;
             margin: 0 auto;
             text-align: left;
+						position: fixed;
+						left: 0;
+						top: 0;
+						width: 100%;
+						height: 100%;
+						background-color: #f5f5f5;
+						pointer-events: none;
+						opacity: 0;
+						transition: opacity 0.8s ease;
         }
 
         .breadcrumbs {
@@ -283,6 +307,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            opacity: 0;
+            animation: slideIn 0.8s forwards;
         }
 
         .product-image-container {
@@ -292,12 +318,16 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             max-width: 50%;
             margin-right: 20px;
+						width: 500px;
+						height: 500px;
+						opacity: 0;
         }
 
         .product-image-container img {
             max-width: 100%;
             height: auto;
             display: block;
+            transition: transform 0.8s ease;
         }
 
         .product-info {
@@ -348,14 +378,6 @@
     </style>
 </head>
 <body>
-    <!-- Loading screen -->
-    <div class="loader">
-        <div class="loader-content">
-            <div class="loader-text">Astro Shop</div>
-            <div class="spinner"></div>
-        </div>
-    </div>
-
     <!-- Main content -->
     <div class="container">
         <div class="header">
@@ -406,19 +428,18 @@
         </div>
     </div>
 
-    <div id="productDetailView" style="display: none;">
+    <div id="productDetailView">
         <div class="breadcrumbs">
             <i id="backButton" class="fas fa-arrow-left"></i>
             <span>Home / Shirts / <span id="breadcrumbTitle"></span></span>
         </div>
         <div class="product-detail">
             <div class="product-image-container">
-                <img id="detailImage" src="" alt="Product Image">
             </div>
             <div class="product-info">
                 <h2 id="detailTitle"></h2>
                 <p id="detailDescription"></p>
-                <div id="detailPrice"></div>
+                <div id="detailPrice">99</div>
                 <small>* This is a fictional price</small>
                 <button><i class="fas fa-shopping-cart"></i> Add to cart</button>
             </div>
@@ -427,27 +448,65 @@
     </div>
 
     <script>
+		// Note: event bubbling might be useful here so that we do not attach event listener to each product
     document.querySelectorAll('.product').forEach(product => {
         product.addEventListener('click', function() {
-            const image = this.querySelector('.product-image img').src;
-            const title = this.querySelector('.product-title').textContent;
-            const description = this.querySelector('.product-description').textContent;
-            const price = this.querySelector('.product-price').textContent;
+					  // --- STEP 1: define all relevant DOM elements ---
 
-            document.getElementById('detailImage').src = image;
-            document.getElementById('detailTitle').textContent = title;
-            document.getElementById('breadcrumbTitle').textContent = title;
-            document.getElementById('detailDescription').textContent = description;
-            document.getElementById('detailPrice').textContent = price;
+						// DOM: Product
+						const product = this;
+						
+						// DOM: Product clone
+						const productClone = product.cloneNode(true);
+						productClone.classList.add('clone');
+						document.body.appendChild(productClone);
 
-            document.querySelector('.container').style.display = 'none';
-            document.getElementById('productDetailView').style.display = 'block';
+						// DOM: Product details (title, description, price)
+						const productTitle = productClone.querySelector('.product-title');
+						const productDescription = productClone.querySelector('.product-description');
+						const productPrice = productClone.querySelector('.product-price');
+
+						// DOM: Product detail view
+						const productDetailView = document.getElementById('productDetailView');
+						const productImageContainer = productDetailView.querySelector('.product-image-container');
+						const backButton = document.getElementById('backButton');
+
+						product.style.opacity = '0';
+
+						const productRect = product.getBoundingClientRect();
+
+						// Remove appear animation from the productClone
+						productClone.style.animation = 'none';
+
+						const productImageContainerRect = productImageContainer.getBoundingClientRect();
+
+						// --- STEP 2: Place the clone in exact the same position as the product ---
+						productClone.style.position = 'absolute';
+						productClone.style.left = `${productRect.left}px`;
+						productClone.style.top = `${productRect.top}px`;
+						productClone.style.width = `${productRect.width}px`;
+						productClone.style.height = `${productRect.height}px`;
+						productClone.style.opacity = '1';
+
+						// --- STEP 3: Show the product detail view ---
+						productDetailView.style.opacity = '1';
+						productDetailView.style.pointerEvents = 'auto';
+
+						// --- STEP 4: Move the clone to the center of the product image container ---
+            setTimeout(() => {
+								productClone.style.left = `${productImageContainerRect.left + (productImageContainerRect.width - productRect.width) / 2}px`;
+								productClone.style.top = `${productImageContainerRect.top + (productImageContainerRect.height - productRect.height) / 2}px`;
+            }, 50);
+
+						// --- STEP 5: Add event listener to the back button ---
+						backButton.addEventListener('click', function() {
+							productDetailView.style.opacity = '0';
+							productDetailView.style.pointerEvents = 'none';
+
+							productClone.remove();	
+						});
+
         });
-    });
-
-    document.getElementById('backButton').addEventListener('click', function() {
-        document.querySelector('.container').style.display = 'block';
-        document.getElementById('productDetailView').style.display = 'none';
     });
     </script>
 </body>
