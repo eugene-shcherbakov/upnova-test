@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astro Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Container styling */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header styles with animation */
+        .header {
+            margin-bottom: 40px;
+            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #000;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #777;
+        }
+
+        /* Products grid with animation */
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        /* Product card styling */
+        .product {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            animation: productAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Product animations with staggered delay */
+        .product:nth-child(1) {
+            animation-delay: 0.6s;
+        }
+
+        .product:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        .product:nth-child(3) {
+            animation-delay: 1.0s;
+        }
+
+        .product:nth-child(4) {
+            animation-delay: 1.2s;
+        }
+
+        /* Product image container */
+        .product-image {
+            height: 300px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s ease;
+        }
+
+        .product:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        /* Product info styles */
+        .product-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .product-description {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 15px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            align-self: flex-end;
+        }
+
+        /* Initial loader animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.6s ease forwards 2s;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-text {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #000;
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes productAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .product-detail img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #productDetailView {
+            display: none;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        #backButton {
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #777;
+        }
+
+        #backButton:hover {
+            color: #333;
+        }
+
+        .product-detail {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .product-image-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 50%;
+            margin-right: 20px;
+        }
+
+        .product-image-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-info h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .product-info p {
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .product-info #detailPrice {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .product-info small {
+            display: block;
+            margin-bottom: 20px;
+            color: #777;
+        }
+
+        .product-info button {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .product-info button:hover {
+            background-color: #333;
+        }
+
+        .lorem-text {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div class="loader">
+        <div class="loader-content">
+            <div class="loader-text">Astro Shop</div>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="container">
+        <div class="header">
+            <h1>Astro Shop</h1>
+            <p>Take a look in our products, feel free to buy some</p>
+        </div>
+
+        <div class="products">
+            <!-- Product 1 -->
+            <div class="product">
+                <div class="product-image">
+                    <img src="https://i.imgur.com/iOeUBV7.jpg" alt="705 Shirt Brave">
+                </div>
+                <div class="product-title">705 Shirt Brave</div>
+                <div class="product-description">Stay Brave with the 705 Shirt from Astro Shop</div>
+                <div class="product-price">$129</div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product">
+                <div class="product-image">
+                    <img src="https://i.imgur.com/Mplj1YR.jpg" alt="Haryo Setyadi Shirt">
+                </div>
+                <div class="product-title">Haryo Setyadi Shirt</div>
+                <div class="product-description">Feel the Comfort and Peace of the Perfect White Tee</div>
+                <div class="product-price">$199</div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product">
+                <div class="product-image">
+                    <img src="https://i.imgur.com/iOeUBV7.jpg" alt="Faith Yarn shirt">
+                </div>
+                <div class="product-title">Faith Yarn shirt</div>
+                <div class="product-description">Elevate Your Style and Comfort with Faith Yarn</div>
+                <div class="product-price">$59</div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product">
+                <div class="product-image">
+                    <img src="https://i.imgur.com/Mplj1YR.jpg" alt="T Shirt 32">
+                </div>
+                <div class="product-title">T Shirt 32</div>
+                <div class="product-description">Stay Cool and Dry with the T Shirt 32</div>
+                <div class="product-price">$99</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="productDetailView" style="display: none;">
+        <div class="breadcrumbs">
+            <i id="backButton" class="fas fa-arrow-left"></i>
+            <span>Home / Shirts / <span id="breadcrumbTitle"></span></span>
+        </div>
+        <div class="product-detail">
+            <div class="product-image-container">
+                <img id="detailImage" src="" alt="Product Image">
+            </div>
+            <div class="product-info">
+                <h2 id="detailTitle"></h2>
+                <p id="detailDescription"></p>
+                <div id="detailPrice"></div>
+                <small>* This is a fictional price</small>
+                <button><i class="fas fa-shopping-cart"></i> Add to cart</button>
+            </div>
+        </div>
+        <p class="lorem-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Incidunt magnam quia, explicabo dolor velit aut omnis natus consequatur possimus fuga illo commodi asperiores dignissimos. Consequuntur nam quae commodi quas, magni.</p>
+    </div>
+
+    <script>
+    document.querySelectorAll('.product').forEach(product => {
+        product.addEventListener('click', function() {
+            const image = this.querySelector('.product-image img').src;
+            const title = this.querySelector('.product-title').textContent;
+            const description = this.querySelector('.product-description').textContent;
+            const price = this.querySelector('.product-price').textContent;
+
+            document.getElementById('detailImage').src = image;
+            document.getElementById('detailTitle').textContent = title;
+            document.getElementById('breadcrumbTitle').textContent = title;
+            document.getElementById('detailDescription').textContent = description;
+            document.getElementById('detailPrice').textContent = price;
+
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('productDetailView').style.display = 'block';
+        });
+    });
+
+    document.getElementById('backButton').addEventListener('click', function() {
+        document.querySelector('.container').style.display = 'block';
+        document.getElementById('productDetailView').style.display = 'none';
+    });
+    </script>
+</body>
+</html>
