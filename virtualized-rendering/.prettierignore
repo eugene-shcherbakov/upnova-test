@@ -1,0 +1,17 @@
+# Compiled output
+*.js
+*.js.map
+
+# Dependencies
+node_modules
+package-lock.json
+
+# Build directories
+dist
+build
+
+# Logs
+*.log
+
+# Miscellaneous
+.DS_Store

@@ -1,0 +1,29 @@
+# Node modules
+animation/node_modules
+virtualized-rendering/node_modules
+
+# Logs
+*.log
+
+# Compiled output
+*.js
+*.js.map
+
+# Build directories
+animation/dist
+virtualized-rendering/dist
+animation/build
+virtualized-rendering/build
+
+# Dependency directories
+animation/package-lock.json
+virtualized-rendering/package-lock.json
+
+# Miscellaneous
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Ignore output from TypeScript compiler
+*.d.ts

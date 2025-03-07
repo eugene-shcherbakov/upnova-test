@@ -1,0 +1,28 @@
+{
+  "name": "virtualized-list",
+  "version": "1.0.0",
+  "description": "Efficient virtualized list without external libraries",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "start": "npx http-server -o",
+    "dev": "concurrently \"npm run watch\" \"npm run serve\"",
+    "serve": "http-server -o -c-1",
+    "format": "prettier --write \"**/*.{ts,html,css,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,html,css,json,md}\""
+  },
+  "keywords": [
+    "virtualization",
+    "list",
+    "performance"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "http-server": "^14.1.1",
+    "concurrently": "^8.2.1",
+    "prettier": "^3.0.3"
+  }
+}

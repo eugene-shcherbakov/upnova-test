@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Virtualized List - Debug Mode</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .debug-panel {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 12px;
+        z-index: 1000;
+        min-width: 200px;
+      }
+
+      .debug-panel h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #555;
+        padding-bottom: 5px;
+      }
+
+      .debug-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+      }
+
+      .debug-stats div:nth-child(odd) {
+        font-weight: bold;
+      }
+
+      .debug-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1001;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        display: none;
+      }
+
+      .debug-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 5px;
+      }
+
+      .debug-actions button {
+        background-color: #2196f3;
+        color: white;
+        border: none;
+        padding: 3px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 11px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="debug-toggle" class="debug-toggle">Show Debug</button>
+
+    <div id="debug-panel" class="debug-panel">
+      <h3>Debug Information</h3>
+      <div id="debug-stats" class="debug-stats">
+        <div>Visible Items:</div>
+        <div id="visible-items">0</div>
+        <div>Total Items:</div>
+        <div id="total-items">0</div>
+        <div>Start Index:</div>
+        <div id="start-index">0</div>
+        <div>End Index:</div>
+        <div id="end-index">0</div>
+        <div>Scroll Position:</div>
+        <div id="scroll-position">0</div>
+        <div>Rendered Nodes:</div>
+        <div id="rendered-nodes">0</div>
+        <div>FPS:</div>
+        <div id="fps">0</div>
+        <div>Memory Usage:</div>
+        <div id="memory">0 MB</div>
+      </div>
+      <div class="debug-actions">
+        <button id="scroll-top">Scroll to Top</button>
+        <button id="scroll-middle">Scroll to Middle</button>
+        <button id="scroll-bottom">Scroll to Bottom</button>
+        <button id="toggle-pause" data-state="running">Pause Updates</button>
+      </div>
+    </div>
+
+    <div class="header">
+      <h1>Virtualized List - Debug Mode</h1>
+      <p>Efficiently rendering 10,000+ items without libraries</p>
+    </div>
+
+    <div id="list-container" class="list-container">
+      <div id="list-spacer" class="list-spacer"></div>
+      <!-- Items will be dynamically added here -->
+    </div>
+
+    <script src="index.js"></script>
+    <script>
+      // Debug panel functionality
+      document.addEventListener('DOMContentLoaded', () => {
+        const debugPanel = document.getElementById('debug-panel');
+        const debugToggle = document.getElementById('debug-toggle');
+        const visibleItemsEl = document.getElementById('visible-items');
+        const totalItemsEl = document.getElementById('total-items');
+        const startIndexEl = document.getElementById('start-index');
+        const endIndexEl = document.getElementById('end-index');
+        const scrollPositionEl = document.getElementById('scroll-position');
+        const renderedNodesEl = document.getElementById('rendered-nodes');
+        const fpsEl = document.getElementById('fps');
+        const memoryEl = document.getElementById('memory');
+        const scrollTopBtn = document.getElementById('scroll-top');
+        const scrollMiddleBtn = document.getElementById('scroll-middle');
+        const scrollBottomBtn = document.getElementById('scroll-bottom');
+        const togglePauseBtn = document.getElementById('toggle-pause');
+        const container = document.getElementById('list-container');
+
+        // Constants from the main script
+        const TOTAL_ITEMS = 10000;
+        const ITEM_HEIGHT = 200;
+
+        // Toggle debug panel visibility
+        debugToggle.style.display = 'block';
+        debugToggle.addEventListener('click', () => {
+          if (debugPanel.style.display === 'none') {
+            debugPanel.style.display = 'block';
+            debugToggle.textContent = 'Hide Debug';
+          } else {
+            debugPanel.style.display = 'none';
+            debugToggle.textContent = 'Show Debug';
+          }
+        });
+
+        // Scroll actions
+        scrollTopBtn.addEventListener('click', () => {
+          container.scrollTop = 0;
+        });
+
+        scrollMiddleBtn.addEventListener('click', () => {
+          container.scrollTop = (TOTAL_ITEMS * ITEM_HEIGHT) / 2;
+        });
+
+        scrollBottomBtn.addEventListener('click', () => {
+          container.scrollTop = TOTAL_ITEMS * ITEM_HEIGHT;
+        });
+
+        // Toggle pause updates
+        let isPaused = false;
+        togglePauseBtn.addEventListener('click', () => {
+          isPaused = !isPaused;
+          if (isPaused) {
+            togglePauseBtn.textContent = 'Resume Updates';
+            togglePauseBtn.style.backgroundColor = '#F44336';
+          } else {
+            togglePauseBtn.textContent = 'Pause Updates';
+            togglePauseBtn.style.backgroundColor = '#2196F3';
+          }
+        });
+
+        // FPS calculation
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let fps = 0;
+
+        function updateFPS() {
+          frameCount++;
+          const currentTime = performance.now();
+          const elapsed = currentTime - lastTime;
+
+          if (elapsed >= 1000) {
+            fps = Math.round((frameCount * 1000) / elapsed);
+            frameCount = 0;
+            lastTime = currentTime;
+          }
+        }
+
+        // Update debug info
+        function updateDebugInfo() {
+          if (isPaused) return;
+
+          const listItems = document.querySelectorAll('.list-item');
+
+          // Calculate start and end indices
+          const scrollTop = container.scrollTop;
+          const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - 5);
+          const endIndex = Math.min(
+            TOTAL_ITEMS - 1,
+            Math.ceil((scrollTop + container.clientHeight) / ITEM_HEIGHT) + 5
+          );
+
+          // Update debug panel
+          visibleItemsEl.textContent = listItems.length;
+          totalItemsEl.textContent = TOTAL_ITEMS;
+          startIndexEl.textContent = startIndex;
+          endIndexEl.textContent = endIndex;
+          scrollPositionEl.textContent = Math.round(scrollTop);
+          renderedNodesEl.textContent = document.querySelectorAll('.list-item').length;
+          fpsEl.textContent = fps;
+
+          // Memory usage (if available)
+          if (window.performance && window.performance.memory) {
+            const memoryUsed = Math.round(window.performance.memory.usedJSHeapSize / (1024 * 1024));
+            memoryEl.textContent = `${memoryUsed} MB`;
+          } else {
+            memoryEl.textContent = 'Not available';
+          }
+
+          updateFPS();
+          requestAnimationFrame(updateDebugInfo);
+        }
+
+        // Start updating debug info
+        requestAnimationFrame(updateDebugInfo);
+      });
+    </script>
+  </body>
+</html>
