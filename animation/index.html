@@ -400,7 +400,7 @@
             <!-- Product 1 -->
             <div class="product">
                 <div class="product-image">
-                    <img src="https://i.imgur.com/iOeUBV7.jpg" alt="705 Shirt Brave">
+                    <img src="https://pics.clipartpng.com/midle/Red_T_Shirt_PNG_Clip_Art-3105.png" alt="705 Shirt Brave">
                 </div>
                 <div class="product-title">705 Shirt Brave</div>
                 <div class="product-description">Stay Brave with the 705 Shirt from Astro Shop</div>
@@ -410,7 +410,7 @@
             <!-- Product 2 -->
             <div class="product">
                 <div class="product-image">
-                    <img src="https://i.imgur.com/Mplj1YR.jpg" alt="Haryo Setyadi Shirt">
+                    <img src="https://pics.clipartpng.com/midle/Green_T_Shirt_PNG_Clip_Art-3106.png" alt="Haryo Setyadi Shirt">
                 </div>
                 <div class="product-title">Haryo Setyadi Shirt</div>
                 <div class="product-description">Feel the Comfort and Peace of the Perfect White Tee</div>
@@ -420,7 +420,7 @@
             <!-- Product 3 -->
             <div class="product">
                 <div class="product-image">
-                    <img src="https://i.imgur.com/iOeUBV7.jpg" alt="Faith Yarn shirt">
+                    <img src="https://pics.clipartpng.com/midle/Blue_T_Shirt_PNG_Clip_Art-3104.png" alt="Faith Yarn shirt">
                 </div>
                 <div class="product-title">Faith Yarn shirt</div>
                 <div class="product-description">Elevate Your Style and Comfort with Faith Yarn</div>
@@ -430,7 +430,7 @@
             <!-- Product 4 -->
             <div class="product">
                 <div class="product-image">
-                    <img src="https://i.imgur.com/Mplj1YR.jpg" alt="T Shirt 32">
+                    <img src="https://pics.clipartpng.com/midle/Black_Hoodie_PNG_Clipart-927.png" alt="T Shirt 32">
                 </div>
                 <div class="product-title">T Shirt 32</div>
                 <div class="product-description">Stay Cool and Dry with the T Shirt 32</div>
@@ -458,112 +458,6 @@
         <p class="lorem-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Incidunt magnam quia, explicabo dolor velit aut omnis natus consequatur possimus fuga illo commodi asperiores dignissimos. Consequuntur nam quae commodi quas, magni.</p>
     </div>
 
-    <script>
-		// Note: event bubbling might be useful here so that we do not attach event listener to each product
-    document.querySelectorAll('.product').forEach(product => {
-        product.addEventListener('click', function() {
-					  // --- STEP 1: define all relevant DOM elements ---
-
-						// DOM: Product
-						const product = this;
-						
-						// DOM: Product clone	
-						const productClone = product.cloneNode(true);
-						productClone.classList.add('clone');
-						document.body.appendChild(productClone);
-
-						// DOM: Product details (title, description, price)
-						const productTitle = productClone.querySelector('.product-title');
-						const productDescription = productClone.querySelector('.product-description');
-						const productPrice = this.querySelector('.product-price');
-
-						// DOM: Product detail view
-						const productDetailView = document.getElementById('productDetailView');
-						const productImageContainer = productDetailView.querySelector('.product-image-container');
-						const productPriceContainer = productDetailView.querySelector('#detailPrice');
-						const backButton = productDetailView.querySelector('#backButton');
-
-						// Coords
-						const productRect = product.getBoundingClientRect();
-						const productPriceRect = productPrice.getBoundingClientRect();
-
-						// Remove appear animation from the productClone
-						productClone.style.animation = 'none';
-
-						// --- STEP 2: Place the clone in exact the same position as the product ---
-						productClone.style.position = 'absolute';
-						productClone.style.left = `${productRect.left}px`;
-						productClone.style.top = `${productRect.top}px`;
-						productClone.style.width = `${productRect.width}px`;
-						productClone.style.height = `${productRect.height}px`;
-						productClone.style.opacity = '1';
-
-						// Clone product price
-						const productPriceClone = productPrice.cloneNode(true);
-						productPriceClone.classList.add('clone');
-						document.body.appendChild(productPriceClone);
-
-						// --- Place product price clone in the same position as the product price ---
-						setTimeout(() => {
-							productPriceClone.style.position = 'fixed';
-							productPriceClone.style.left = `${productPriceRect.left}px`;
-							productPriceClone.style.top = `${productPriceRect.top}px`;
-							productPriceClone.style.width = `${productPriceRect.width}px`;
-							productPriceClone.style.height = `${productPriceRect.height}px`;
-						}, 0);
-
-						// --- Hide product price, description, and title ---
-						setTimeout(() => {
-							productClone.querySelector(".product-price").style.display = "none";
-							productClone.querySelector(".product-description").style.display = "none";
-							productClone.querySelector(".product-title").style.display = "none";
-						}, 0);
-						
-						// --- STEP 3: Show the product detail view ---
-						productDetailView.style.opacity = '1';
-						productDetailView.style.pointerEvents = 'auto';
-
-						// --- Move the product clone to the center of the product image container ---
-            setTimeout(() => {
-							const updatedProductImageContainerRect = productImageContainer.getBoundingClientRect();
-
-							productClone.style.left = `${updatedProductImageContainerRect.left}px`;
-							productClone.style.top = `${updatedProductImageContainerRect.top}px`;
-							productClone.style.width = `${updatedProductImageContainerRect.width}px`;
-							productClone.style.height = `${updatedProductImageContainerRect.height}px`;
-            }, 0);
-
-						// --- Initialize productDetailView description and title ---
-						setTimeout(() => {
-							const productTitleText = productTitle.innerHTML;
-							const productDescriptionText = productDescription.innerHTML;
-
-							productDetailView.querySelector("#detailTitle").innerHTML = productTitleText;
-							productDetailView.querySelector("#detailDescription").innerHTML = productDescriptionText;
-						}, 0);
-
-						// --- Move the product price clone to the center of the product image container ---
-						setTimeout(() => {
-							const updatedProductPriceContainerRect = productPriceContainer.getBoundingClientRect();
-
-							productPriceClone.style.zIndex = '1000';
-							productPriceClone.style.left = `${updatedProductPriceContainerRect.left}px`;
-							productPriceClone.style.top = `${updatedProductPriceContainerRect.top}px`;
-							productPriceClone.style.width = `${updatedProductPriceContainerRect.width}px`;
-							productPriceClone.style.height = `${updatedProductPriceContainerRect.height}px`;
-            }, 0);
-
-						// --- Add event listener to the back button ---
-						backButton.addEventListener('click', function() {
-							productDetailView.style.opacity = '0';
-							productDetailView.style.pointerEvents = 'none';
-
-							productClone.remove();	
-							productPriceClone.remove();
-						});
-
-        });
-    });
-    </script>
+		<script src="dist/bundle.js"></script>
 </body>
 </html>
